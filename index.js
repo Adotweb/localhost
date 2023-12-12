@@ -133,6 +133,10 @@ wss.on("connection", socket => {
 app.use(express.static(path.join(__dirname, "/static")))
 
 
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "static", "notFound.html"))
+})
+
 let stalledResponses = new Map()
 
 app.get("/apps", async (req, res) => {
