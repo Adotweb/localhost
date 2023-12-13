@@ -137,18 +137,33 @@ app.use(express.static(path.join(__dirname, "/static")))
 
 let stalledResponses = new Map()
 
-app.get("/apps", async (req, res) => {
-	const localhost = client.db("localhost")
-	const collection = localhost.collection("app_ids")
 
-	const result = await collection.findOne()
+app.get("/:server", (req, res) => {
+	let {serverid} = req.params;
 
-	res.send(result)	
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let serving = server.get(serverid);
+
+		serving.send(JSON.stringify({
+			
+			method:"client-req",
+			data:{
+				method:"get",
+				requestid
+			}
+		}))
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
 })
 
-app.get("/:serverid/:getter", (req, res) => {
+app.get("/:serverid/:route", (req, res) => {
 
-	let {serverid, getter} = req.params
+	let {serverid, route} = req.params
 	
 
 	if(servers.has(serverid)){
@@ -161,14 +176,70 @@ app.get("/:serverid/:getter", (req, res) => {
 		serving.send(JSON.stringify({
 			method:"client-req",
 			data:{
-				getter,
+				method:"get",
+				route,
 				requestid
 			}
 		}))
 
 		stalledResponses.set(requestid, res)
 	} else {
-		res.send(getter)
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+})
+
+app.post("/:server", (req, res) => {
+	let {serverid} = req.params;
+	
+	
+
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let serving = server.get(serverid);
+
+		serving.send(JSON.stringify({
+			
+			method:"client-req",
+			data:{
+				method:"post",
+				body:req.body,
+				requestid
+			}
+		}))
+
+		stalledResponses.set(requestid, res)
+	} else {
+	
+		res.send({err:"no such route"})
+	}
+})
+
+app.post("/:serverid/:route", (req, res) => {
+
+	let {serverid, route} = req.params
+	
+
+	if(servers.has(serverid)){
+		
+		let requestid = v4();
+
+
+		let serving = servers.get(serverid)
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"post",
+				route,
+				body:req.body,
+				requestid
+			}
+		}))
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.send({err:"no such route"})	
 	}
 })
 
