@@ -137,34 +137,10 @@ app.use(express.static(path.join(__dirname, "/static")))
 
 let stalledResponses = new Map()
 
-
-app.get("/:server", (req, res) => {
+app.get("/:serverid", (req, res)=> {
 	let {serverid} = req.params;
 
-	if(servers.has(serverid)){
-		let requestid = v4();
-
-		let serving = server.get(serverid);
-
-		serving.send(JSON.stringify({
-			
-			method:"client-req",
-			data:{
-				method:"get",
-				requestid
-			}
-		}))
-
-		stalledResponses.set(requestid, res)
-	} else {
-		res.sendFile(path.join(__dirname, "static", "notFound.html"))
-	}
-})
-
-app.get("/:serverid/:route", (req, res) => {
-
-	let {serverid, route} = req.params
-	
+	console.log(serverid)
 
 	if(servers.has(serverid)){
 		
@@ -176,7 +152,31 @@ app.get("/:serverid/:route", (req, res) => {
 		serving.send(JSON.stringify({
 			method:"client-req",
 			data:{
-				method:"get",
+				method:"post",
+				requestid
+			}
+		}))
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))	
+	}
+})
+
+app.get("/:serverid/:route", (req, res)=> {
+	let {serverid, route} = req.params;
+
+	if(servers.has(serverid)){
+		
+		let requestid = v4();
+
+
+		let serving = servers.get(serverid)
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"post",
 				route,
 				requestid
 			}
@@ -184,34 +184,7 @@ app.get("/:serverid/:route", (req, res) => {
 
 		stalledResponses.set(requestid, res)
 	} else {
-		res.sendFile(path.join(__dirname, "static", "notFound.html"))
-	}
-})
-
-app.post("/:server", (req, res) => {
-	let {serverid} = req.params;
-	
-	
-
-	if(servers.has(serverid)){
-		let requestid = v4();
-
-		let serving = server.get(serverid);
-
-		serving.send(JSON.stringify({
-			
-			method:"client-req",
-			data:{
-				method:"post",
-				body:req.body,
-				requestid
-			}
-		}))
-
-		stalledResponses.set(requestid, res)
-	} else {
-	
-		res.send({err:"no such route"})
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))	
 	}
 })
 
