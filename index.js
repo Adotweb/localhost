@@ -34,6 +34,7 @@ wss.on("connection", socket => {
 			
 		if(!data) return
 
+
 		switch(method){
 
 			case "client-log":
@@ -107,8 +108,7 @@ wss.on("connection", socket => {
 
 				if(data.requestid){
 					let res = stalledResponses.get(data.requestid);
-					try{res.send(data.response)} 
-					catch{res.send({err:"something went wrong..."})}
+					res.send(data.response) 
 				}
 					
 				if(clients.has(data.address)){
@@ -116,8 +116,10 @@ wss.on("connection", socket => {
 
 
 
+					if(!addressed) return
+
 					addressed.send(JSON.stringify({
-						method:"server-res",
+						method:"task",
 						data
 					}))
 				}
@@ -165,14 +167,51 @@ app.use(express.static(path.join(__dirname, "/static")))
 
 let stalledResponses = new Map()
 
+app.get("/:serverid", (req, res) => {
+	let {serverid} = req.params;
+
+
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let serving = servers.get(serverid);
+
+		let requestObject = {
+			params:req.params		
+		}
+
+		
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"get",
+				route:"/", 
+				requestid,
+				request:requestObject
+			}
+		}))
+		
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+})
+
 app.get("/:serverid/:route", (req, res)=> {
 	let {serverid,route} = req.params;
+
+	route = "/" + route;
 
 
 	if(servers.has(serverid)){
 		
 		let requestid = v4();
-
+		
+		let requestObject = {
+			params:req.params
+		}
 
 		let serving = servers.get(serverid)
 
@@ -181,7 +220,8 @@ app.get("/:serverid/:route", (req, res)=> {
 			data:{
 				method:"get",
 				route,
-				requestid
+				requestid,
+				request:requestObject	
 			}
 		}))
 
@@ -190,6 +230,76 @@ app.get("/:serverid/:route", (req, res)=> {
 		res.sendFile(path.join(__dirname, "static", "notFound.html"))	
 	}
 })
+
+app.post("/:serverid/:route", (req, res) => {
+	let {serverid, route} = req.params;
+
+	let body = req.body;
+
+
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let requestObject = {
+			body,
+			params:req.params
+		}
+
+		let serving = servers.get(serverid); 
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"",
+				request:requestObject,
+				requestid, 
+				route
+			}
+		}))
+
+		stalledResponses.set(requestid, res)
+	}else {
+		res.send({err:"currently no such host"})	
+	}
+})
+
+app.post("/task/:serverid/:route", (req, res) => {
+	let {serverid, route} = req.params; 
+	
+
+	let body = req.body
+
+	let address = body.address;
+
+	if(!address) {
+		res.send({err:"no address provided"})
+		return	
+	}
+
+	if(servers.has(serverid)){
+
+		let requestObject = {
+			body,
+			params:req.params
+		}
+
+		let serving = servers.get(serverid);
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"task",
+				request:requestObject,
+				route,
+				address
+			}
+		}))
+	} else{
+		res.send({err:"currently no such hosts"})
+	}
+})
+
+
 
 
 app.get("*", (req, res) => {
