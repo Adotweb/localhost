@@ -104,15 +104,15 @@ wss.on("connection", socket => {
 			
 			case "server-res":
 
-				if(data.response.err === 404){
 					
-					let res = stalledResponses.get(data.requestid)
-
-					res.sendFile(path.join(__dirname, "static", "notFound.html"))
-				}
 
 				if(data.requestid){
 					let res = stalledResponses.get(data.requestid);
+
+					if(data.response.err == 404){
+						res.sendFile(path.join(__dirname, "static", "notFound.html"))
+					}	
+
 					res.send(data.response) 
 				}
 					
