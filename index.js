@@ -26,18 +26,19 @@ let clients = new Map();
 
 wss.on("connection", socket => {
 
-	socket.on("message", msg => {
+	socket.on("message", async msg => {
 		msg = msg.toString();
 
 		const {method, data} = JSON.parse(msg);
 
 			
-
+		if(!data) return
 
 		switch(method){
 
 			case "client-log":
 			
+				if(!data.hasOwnProperty("id")) break;
 				
 				clients.set(data.id, socket);
 				socket.id = data.id;
@@ -48,6 +49,28 @@ wss.on("connection", socket => {
 			case "server-log":
 
 
+				if(!data.hasOwnProperty("id") || !data.hasOwnProperty("secret")) break;
+
+			
+				let db = client.db("localhost");
+				let collection = db.collection("app_ids"); 
+
+
+				
+
+				let results = await collection.findOne({
+					server_id:data.id
+				})
+
+
+
+				if(!results) break;
+				
+
+				if(data.secret !== results.secret) break;
+
+
+
 				servers.set(data.id, socket);
 				socket.id = data.id	
 
@@ -55,6 +78,8 @@ wss.on("connection", socket => {
 				break;
 
 			case "client-req": 
+				
+				if(!data.hasOwnProperty("targetId")) break
 
 				if(servers.has(data.targetId)){
 
@@ -78,11 +103,14 @@ wss.on("connection", socket => {
 			
 			case "server-res":
 
+
+
 				if(data.requestid){
 					let res = stalledResponses.get(data.requestid);
-					res.send(data.response)
+					try{res.send(data.response)} 
+					catch{res.send({err:"something went wrong..."})}
 				}
-
+					
 				if(clients.has(data.address)){
 					let addressed = clients.get(data.address)
 
@@ -140,7 +168,6 @@ let stalledResponses = new Map()
 app.get("/:serverid/:route", (req, res)=> {
 	let {serverid,route} = req.params;
 
-	console.log(serverid)
 
 	if(servers.has(serverid)){
 		
