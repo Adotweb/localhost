@@ -150,7 +150,7 @@ wss.on("connection", socket => {
 			clients.delete(id)
 		}
 		if(servers.has(id)){
-			clients.delete(id)
+			servers.delete(id)
 		}
 		
 
