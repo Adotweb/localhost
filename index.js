@@ -206,8 +206,70 @@ app.get("/:serverid/*", (req, res) => {
 	}
 })
 
+app.post("/:serverdid/*", (req, res) => {
+	let {serverid} = req.params;
+
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let serving = servers.get(serverid); 
 
 
+		let requestObject = {
+			params:req.params,
+			body:req.body,
+		}
+
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"post",
+				route:req.originalUrl.split(serverid)[1], 
+				requestid,
+				request:requestObject
+			}
+		}))
+		
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+})
+
+
+app.post("/:serverdid/task*", (req, res) => {
+	let {serverid} = req.params;
+
+	if(servers.has(serverid)){
+		let requestid = v4();
+
+		let serving = servers.get(serverid); 
+
+
+		let requestObject = {
+			params:req.params,
+			body:req.body,
+		}
+
+
+		serving.send(JSON.stringify({
+			method:"client-req",
+			data:{
+				method:"task",
+				route:req.originalUrl.split(serverid)[1], 
+				requestid,
+				request:requestObject
+			}
+		}))
+		
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+})
 
 
 app.get("*", (req, res) => {
