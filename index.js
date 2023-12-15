@@ -174,7 +174,7 @@ app.use(express.static(path.join(__dirname, "/static")))
 
 let stalledResponses = new Map()
 
-app.get("/:serverid", (req, res) => {
+app.get("/:serverid/*", (req, res) => {
 	let {serverid} = req.params;
 
 
@@ -193,7 +193,7 @@ app.get("/:serverid", (req, res) => {
 			method:"client-req",
 			data:{
 				method:"get",
-				route:"/", 
+				route:req.originalUrl.split(serverid)[1], 
 				requestid,
 				request:requestObject
 			}
@@ -206,105 +206,6 @@ app.get("/:serverid", (req, res) => {
 	}
 })
 
-app.get("/:serverid/:route", (req, res)=> {
-	let {serverid,route} = req.params;
-
-	route = "/" + route;
-
-
-	if(servers.has(serverid)){
-		
-		let requestid = v4();
-		
-		let requestObject = {
-			params:req.params
-		}
-
-		let serving = servers.get(serverid)
-
-		serving.send(JSON.stringify({
-			method:"client-req",
-			data:{
-				method:"get",
-				route,
-				requestid,
-				request:requestObject	
-			}
-		}))
-
-		stalledResponses.set(requestid, res)
-	} else {
-		res.sendFile(path.join(__dirname, "static", "notFound.html"))	
-	}
-})
-
-app.post("/:serverid/:route", (req, res) => {
-	let {serverid, route} = req.params;
-
-	let body = req.body;
-
-
-	if(servers.has(serverid)){
-		let requestid = v4();
-
-		let requestObject = {
-			body,
-			params:req.params
-		}
-
-		let serving = servers.get(serverid); 
-
-		serving.send(JSON.stringify({
-			method:"client-req",
-			data:{
-				method:"",
-				request:requestObject,
-				requestid, 
-				route
-			}
-		}))
-
-		stalledResponses.set(requestid, res)
-	}else {
-		res.send({err:"currently no such host"})	
-	}
-})
-
-app.post("/task/:serverid/:route", (req, res) => {
-	let {serverid, route} = req.params; 
-	
-
-	let body = req.body
-
-	let address = body.address;
-
-	if(!address) {
-		res.send({err:"no address provided"})
-		return	
-	}
-
-	if(servers.has(serverid)){
-
-		let requestObject = {
-			body,
-			params:req.params
-		}
-
-		let serving = servers.get(serverid);
-
-		serving.send(JSON.stringify({
-			method:"client-req",
-			data:{
-				method:"task",
-				request:requestObject,
-				route,
-				address
-			}
-		}))
-	} else{
-		res.send({err:"currently no such hosts"})
-	}
-})
 
 
 
