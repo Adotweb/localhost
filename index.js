@@ -34,7 +34,6 @@ wss.on("connection", socket => {
 			
 		if(!data) return
 		
-		console.log(data)
 
 		switch(method){
 
@@ -254,7 +253,6 @@ app.get("/:serverid/*", (req, res) => {
 app.post("/:serverid/*", (req, res) => {
 	let {serverid} = req.params;
 
-	console.log(serverid)
 
 
 	if(servers.has(serverid)){
@@ -268,7 +266,6 @@ app.post("/:serverid/*", (req, res) => {
 			body:req.body,
 		}
 
-		console.log(requestObject)
 
 		serving.send(JSON.stringify({
 			method:"client-req",
