@@ -111,6 +111,8 @@ wss.on("connection", socket => {
 
 					if(data.response.err == 404){
 						res.sendFile(path.join(__dirname, "static", "notFound.html"))
+
+						break;
 					}	
 
 					res.send(data.response) 
