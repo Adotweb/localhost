@@ -33,7 +33,8 @@ wss.on("connection", socket => {
 
 			
 		if(!data) return
-
+		
+		console.log(data)
 
 		switch(method){
 
@@ -133,8 +134,52 @@ wss.on("connection", socket => {
 
 
 				break;
+			
+			case "client-ws":
+			
+				if(data.serverid){
+					let serving = servers.get(data.serverid) 
 
-			case "server-int":
+					serving.send(JSON.stringify({
+						method:"client-ws",
+						data
+					}))
+					break;
+				}
+
+				if(data.addressList){
+					let ad = data.addressList; 
+
+
+					
+
+					ad.forEach(address => {
+						clients.get(address).send(JSON.stringify({
+							method:"ws",
+							data
+						}))
+					})
+				}
+
+
+
+				break;
+
+			case "server-ws":
+					
+				if(data.addressList){
+					let ad = data.addressList; 
+
+
+					
+
+					ad.forEach(address => {
+						clients.get(address).send(JSON.stringify({
+							method:"ws",
+							data
+						}))
+					})
+				}
 
 				break;
 
@@ -168,7 +213,7 @@ wss.on("connection", socket => {
 
 
 app.use(express.static(path.join(__dirname, "/static")))
-
+app.use(express.json())
 
 
 
@@ -206,8 +251,11 @@ app.get("/:serverid/*", (req, res) => {
 	}
 })
 
-app.post("/:serverdid/*", (req, res) => {
+app.post("/:serverid/*", (req, res) => {
 	let {serverid} = req.params;
+
+	console.log(serverid)
+
 
 	if(servers.has(serverid)){
 		let requestid = v4();
@@ -220,6 +268,7 @@ app.post("/:serverdid/*", (req, res) => {
 			body:req.body,
 		}
 
+		console.log(requestObject)
 
 		serving.send(JSON.stringify({
 			method:"client-req",
@@ -238,38 +287,6 @@ app.post("/:serverdid/*", (req, res) => {
 	}
 })
 
-
-app.post("/:serverdid/task*", (req, res) => {
-	let {serverid} = req.params;
-
-	if(servers.has(serverid)){
-		let requestid = v4();
-
-		let serving = servers.get(serverid); 
-
-
-		let requestObject = {
-			params:req.params,
-			body:req.body,
-		}
-
-
-		serving.send(JSON.stringify({
-			method:"client-req",
-			data:{
-				method:"task",
-				route:req.originalUrl.split(serverid)[1], 
-				requestid,
-				request:requestObject
-			}
-		}))
-		
-
-		stalledResponses.set(requestid, res)
-	} else {
-		res.sendFile(path.join(__dirname, "static", "notFound.html"))
-	}
-})
 
 
 app.get("*", (req, res) => {

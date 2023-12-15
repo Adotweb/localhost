@@ -1,0 +1,29 @@
+<script src="/js/localhost.js"></script>
+
+<script>
+	
+
+	app.register()
+
+	app.ws.onmessage(msg => {
+		console.log(msg)
+	})
+
+
+	
+
+	function send(){	
+		app.rest.post("http://localhost:5000/host-1/sendMessage", {
+			message:"message from client"
+		}).then(res => console.log(res))
+	}
+
+
+	
+
+</script>
+
+
+<button onclick="send()">
+	send
+</button>
