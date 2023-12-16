@@ -7,6 +7,8 @@ const path = require("path");
 
 const {client} = require("./db/client")
 
+const {decycle} = require("./utils")
+
 const httpServer = createServer(app)
 
 const wss = new WebSocketServer({server:httpServer})
@@ -193,9 +195,7 @@ app.get("/:serverid/*", (req, res) => {
 
 		let serving = servers.get(serverid);
 
-		let requestObject = {
-			params:req.params		
-		}
+
 
 		
 
@@ -205,7 +205,8 @@ app.get("/:serverid/*", (req, res) => {
 				method:"get",
 				route:req.originalUrl.split(serverid)[1], 
 				requestid,
-				request:requestObject
+				request:decycle(req)
+									
 			}
 		}))
 		
@@ -227,10 +228,6 @@ app.post("/:serverid/*", (req, res) => {
 		let serving = servers.get(serverid); 
 
 
-		let requestObject = {
-			params:req.params,
-			body:req.body,
-		}
 
 
 		serving.send(JSON.stringify({
@@ -239,7 +236,7 @@ app.post("/:serverid/*", (req, res) => {
 				method:"post",
 				route:req.originalUrl.split(serverid)[1], 
 				requestid,
-				request:requestObject
+				request:decycle(req)
 			}
 		}))
 		
