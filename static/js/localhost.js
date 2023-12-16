@@ -4,6 +4,7 @@ let URI = ((window.location.protocol === "https:") ? "wss://" : "ws://") + windo
 
 let socket = new WebSocket(URI);
 
+let connectedServer = null
 
 let id = Date.now()
 
@@ -55,8 +56,12 @@ function onmessage(func){
 	})	
 }
 
-const onopen = socket.onopen
-const onclose = socket.onclose
+function onopen(func){
+	socket.onopen = func
+}
+function onclose(func){
+	socket.onclose = func
+}
 
 let ws = {
 	onopen,
@@ -65,7 +70,7 @@ let ws = {
 	onclose
 }
 
-function register(url, pid=false){
+function register(pid=false, url){
 	socket = new WebSocket(url || URI)
 
 	if(pid){
@@ -73,17 +78,32 @@ function register(url, pid=false){
 	}		
 
 	socket.onopen = () => {
+
+		let currentHost = window.location.pathname.split("/")[1];
+
+
 		socket.send(JSON.stringify({
 			method:"client-log",
 		
 			data:{
-				id
+				id,
+				currentHost	
 			}			
 		}))
 	}
 
 	socket.onmessage = msg => {
-		console.log(msg)
+		msg = JSON.parse(msg.data);
+
+		if(msg.data.registeredServer){
+				
+		}
+	}
+
+	socket.onclose = ( )=> {
+		socket.send(JSON.stringify({
+
+		}))
 	}
 
 }

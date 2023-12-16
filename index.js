@@ -44,6 +44,20 @@ wss.on("connection", socket => {
 				clients.set(data.id, socket);
 				socket.id = data.id;
 
+				socket.host = data.currentHost
+
+
+
+
+
+				if(servers.has(socket.host)){
+					servers.get(socket.host).send(JSON.stringify({
+						method:"connect-client",
+						data:{
+							clientid:data.id
+						}
+					}))
+				}
 
 				break; 
 
@@ -78,32 +92,9 @@ wss.on("connection", socket => {
 
 				break;
 
-			case "client-req": 
-				
-				if(!data.hasOwnProperty("targetId")) break
-
-				if(servers.has(data.targetId)){
-
-					let serving = servers.get(data.targetId)
-
-					serving.send(JSON.stringify({
-						method:"client-req",
-						data
-					}))
-
-				}else {
-					socket.send(JSON.stringify({
-						method:"error", 
-						data:{
-							message:"no server with the speficified id"
-						}
-					}))
-				}
-
-				break;
 			
 			case "server-res":
-
+			
 					
 
 				if(data.requestid){
@@ -118,54 +109,14 @@ wss.on("connection", socket => {
 					res.send(data.response) 
 				}
 					
-				if(clients.has(data.address)){
-					let addressed = clients.get(data.address)
-
-
-
-					if(!addressed) return
-
-					addressed.send(JSON.stringify({
-						method:"task",
-						data
-					}))
-				}
 
 
 				break;
 			
-			case "client-ws":
-			
-				if(data.serverid){
-					let serving = servers.get(data.serverid) 
-
-					serving.send(JSON.stringify({
-						method:"client-ws",
-						data
-					}))
-					break;
-				}
-
-				if(data.addressList){
-					let ad = data.addressList; 
-
-
-					
-
-					ad.forEach(address => {
-						clients.get(address).send(JSON.stringify({
-							method:"ws",
-							data
-						}))
-					})
-				}
-
-
-
-				break;
 
 			case "server-ws":
-					
+				
+
 				if(data.addressList){
 					let ad = data.addressList; 
 
@@ -181,6 +132,8 @@ wss.on("connection", socket => {
 				}
 
 				break;
+
+				
 
 			case "keepalive":
 				
@@ -197,8 +150,21 @@ wss.on("connection", socket => {
 	socket.on("close", e => {
 		let id = socket.id;
 
+
 		if(clients.has(id)){
 			clients.delete(id)
+
+
+			let host = socket.host; 
+
+			servers.get(host).send(JSON.stringify({
+				method:"disconnect-client",
+				data:{
+					clientid:socket.id
+				}
+			}))
+			
+
 		}
 		if(servers.has(id)){
 			servers.delete(id)
