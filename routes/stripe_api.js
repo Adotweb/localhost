@@ -5,7 +5,7 @@ const stripe = require("stripe")(process.env.STRIPE_KEY)
 const router = express.Router() 
 
 
-require("../db/client")
+const {client} = require("../db/client")
 
 router.get("/", (req, res) => {
 	
@@ -17,7 +17,7 @@ router.get("/", (req, res) => {
 router.get("/checkout", async (req, res) => {
 
 
-	
+	console.log(req.originalUrl, req.path)	
 
 	const session = await stripe.checkout.sessions.create({
 		mode:"subscription",
@@ -32,7 +32,6 @@ router.get("/checkout", async (req, res) => {
 		cancel_url:"http://localhost:5000"
 	})
 
-	console.log(session)
 
 	res.redirect(session.url)
 })
@@ -40,30 +39,56 @@ router.get("/checkout", async (req, res) => {
 
 const endpointSecret = "whsec_ffb03ea580ee5b81b26263b432d8aaabb2c3116a73cfa81c2f564fcb9b5d32ff"
 
-router.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+router.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+
   } catch (err) {
     response.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntentSucceeded = event.data.object;
-      // Then define and call a function to handle the event payment_intent.succeeded
-      break;
-    // ... handle other event types
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
+	
+	let email = false;
 
-  // Return a 200 response to acknowledge receipt of the event
+	switch(event.type){
+		case "checkout.session.completed": 
+		
+			
+			const sessionid = event.data.object.id; 
+
+			const session = await stripe.checkout.sessions.retrieve(sessionid)
+
+			
+			let customer = session.customer_details 
+
+
+			email = customer.email
+
+		break;
+	}
+
+
+	let users = client.db("localhost").collection("users") 
+
+	const apps = client.db("localhost").collection("apps")
+
+
+	if(email){
+
+		let customer = await users.findOne({email})
+		
+		console.log(customer)		
+
+	}
+
+
+
+
   response.send();
 });
 

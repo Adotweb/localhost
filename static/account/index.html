@@ -12,6 +12,20 @@
 <script src="/js/localhost.js"></script>
 
 <script>
+
+	let user = false; 
+
+
+	document.addEventListener("DOMContentLoaded", () => {
+		
+		
+		let user = $get("user")
+			
+		if(user) switchLoginState("logged")
+		
+	})
+
+
 	let loginForm = document.getElementById("loginForm")
 	let signUpForm = document.getElementById("signUpForm")
 
@@ -48,8 +62,34 @@
 		app.rest.post("/account/login", {
 			email:document.getElementById("email-l").value,
 			password:document.getElementById("password-l").value
-}).then(res => {console.log(res)})
-	}		
+		}).then(res => {
+			console.log(res)	
+			if(res.success){
+				$store("user", res.data)
+				switchLoginState("logged")	
+			}
+
+		})
+	}	
+
+
+function signUp(){
+
+	app.rest.post("/account/signup", {
+		email:document.getElementById("email").value,
+		password:document.getElementById("password").value,
+		name:document.getElementById("name").value,
+		surname:document.getElementById("surname").value,
+
+	}).then(res =>{
+	
+		if(res.success){
+			switchLoginState("logged");
+			$store("user", res.data)	
+		}	
+	})
+
+}
 
 
 </script>
@@ -88,7 +128,7 @@
 				
 
 				<div class="submit w-full mt-4">
-					<button class="w-full rounded-md bg-gray-800 text-white p-2 text-xl font-bold">
+					<button onclick="signUp()" class="w-full rounded-md bg-gray-800 text-white p-2 text-xl font-bold">
 						<div class="bg-clip-text bg-gradient-to-r from-yellow-200 to-red-400 text-transparent">
 							Sign Up
 						</div>
@@ -136,6 +176,10 @@
 
 	</div>
 
-	<div id="dashBoard"></div>
+	<div id="hidden dashBoard w-full">
+
+				
+
+	</div>
 
 </body>

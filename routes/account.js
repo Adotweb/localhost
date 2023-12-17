@@ -31,16 +31,79 @@ router.post("/login", async (req, res) => {
 	let user = await col.findOne({
 		email
 	})
-	console.log(user, hashedPass)	
+
+	client.close()
 	
-	res.send({
-		success:"hello"
-	})
+	if(user.password === hashedPass){
+		
+		user.password = undefined
+
+		res.send({
+			success:true,
+			data:user
+		})
+
+		return
+	}else{
+		res.send({error:"email or password are wrong"})
+	}
+
 })
 
-router.post("/signup", (req, res) => {
+router.post("/signup", async (req, res) => {
+	
+	let errors = [];
+	let success = false;
+	let data = false; 
 
+	let currentUser = {}
 
+	const users = client.db("localhost").collection("users")
+
+	if(!req.body.email){
+		res.send({error:"no email provided"})
+
+		return
+	} 
+	
+	let possibleuser = await users.findOne({email:req.body.email})
+
+	if(possibleuser){
+		res.send({error:"email already exists"})
+		return
+	}
+
+	if(!req.body.name){
+		res.send({error:"no name provided"})
+		return
+	}
+	if(!req.body.surname){
+		res.send({error:"no surname provided"})
+		return
+	}
+	if(!req.body.password){
+		res.send({error:"no password provided"})
+	}
+
+	const {email, name, surname, password} = req.body; 
+		
+	currentUser = {
+		email, 
+		name, 
+		surname, 
+		password:crypto.SHA256(password).toString(),
+	}
+	
+	const response = await users.insertOne(currentUser)
+	
+	client.close()
+
+	currentUser.password = undefined
+
+	res.send({
+		success:true,
+		data:currentUser
+	})
 })
 
 
