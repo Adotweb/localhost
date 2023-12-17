@@ -82,7 +82,6 @@ router.post('/webhook', express.raw({type: 'application/json'}), async (request,
 
 		let customer = await users.findOne({email})
 		
-		console.log(customer)		
 
 	}
 
