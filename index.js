@@ -177,7 +177,11 @@ wss.on("connection", socket => {
 	})
 })
 
+const stripe_api = require("./routes/stripe_api")
+const account = require("./routes/account")
 
+app.use("/stripe_api", stripe_api)
+app.use("/account", account)
 
 app.use(express.static(path.join(__dirname, "/static")))
 app.use(express.json())

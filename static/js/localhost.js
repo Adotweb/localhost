@@ -2,7 +2,7 @@
 
 let URI = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws"
 
-let socket = new WebSocket(URI);
+let socket = null;
 
 let connectedServer = null
 

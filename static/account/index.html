@@ -1,0 +1,141 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="icon" href="/icons/favicon.ico">
+
+</head>
+
+<script src="/js/data.js"></script>
+
+<script src="/js/localhost.js"></script>
+
+<script>
+	let loginForm = document.getElementById("loginForm")
+	let signUpForm = document.getElementById("signUpForm")
+
+	let dashBoard = document.getElementById("dashBoard")
+
+	function switchLoginState(loginState){
+		switch(loginState){
+			case "signup":
+				
+				document.getElementById("loginForm").classList.add("hidden")	
+				document.getElementById("signUpForm").classList.remove("hidden")
+				document.getElementById("dashBoard").classList.add("hidden")
+			break;
+			
+			case "login":
+				
+				document.getElementById("loginForm").classList.remove("hidden")	
+				document.getElementById("signUpForm").classList.add("hidden")
+				document.getElementById("dashBoard").classList.add("hidden")
+		
+			break;
+			
+			case "logged":
+				
+				document.getElementById("loginForm").classList.add("hidden")	
+				document.getElementById("signUpForm").classList.add("hidden")
+				document.getElementById("dashBoard").classList.remove("hidden")
+			break;			
+		}	
+	}
+
+
+	function login(){
+		app.rest.post("/account/login", {
+			email:document.getElementById("email-l").value,
+			password:document.getElementById("password-l").value
+}).then(res => {console.log(res)})
+	}		
+
+
+</script>
+
+<body class="m-0">
+	
+	<div id="signUpForm" class="hidden w-full h-full flex justify-center items-center font-bold">
+	
+		<div class="rounded-md bg-gradient-to-b from-orange-200 to-red-300 drop-shadow-lg p-1">
+			<div class="rounded-md bg-gray-100 p-8 flex flex-col items-center">
+				<div class="title w-full">
+					<h1 class="text-3xl font-bold pb-4">Login</h1>
+				</div>
+
+				<div class="name grid md:grid-rows-2 md:grid-cols-2 gap-x-4">
+					<div class="name text-xl font-bold mt-4">Name</div>
+
+
+
+					<input id="name" class="outline-none border-b-2 border-orange-200 bg-transparent" type="text">
+
+
+					<div class="surname md:row-start-1 md:col-start-2 text-xl font-bold mt-4">Surname</div>
+					<input id="surname" class="outline-none border-b-2 border-orange-200 bg-transparent" type="text">
+				</div>
+				<div class="email flex flex-col gap-4 w-full mt-4">
+					<div class="email text-xl font-bold w-full">Email</div>
+					<input type="email" id="email" class="bg-transparent border-b-2 border-red-300 outline-none">
+				</div>
+				<div class="password flex flex-col gap-4 w-full mt-4">
+					<div class="email text-xl font-bold w-full">password</div>
+					<input type="password" visible="" id="password" class="bg-transparent border-b-2 border-red-400 outline-none">
+				</div>
+
+
+				
+
+				<div class="submit w-full mt-4">
+					<button class="w-full rounded-md bg-gray-800 text-white p-2 text-xl font-bold">
+						<div class="bg-clip-text bg-gradient-to-r from-yellow-200 to-red-400 text-transparent">
+							Sign Up
+						</div>
+					</button>					
+					<button onclick="switchLoginState('login')" class="mt-2 underline">Login instead</button>
+				</div>	
+			</div>
+		</div>
+
+	</div>
+
+
+	<div id="loginForm" class="w-full h-full flex justify-center items-center font-bold">
+	
+		<div class="rounded-md bg-gradient-to-b from-blue-200 to-indigo-300 drop-shadow-lg p-1">
+			<div class="rounded-md bg-gray-100 p-8 flex flex-col items-center">
+				<div class="title w-full">
+					<h1 class="text-3xl font-bold pb-4">Login</h1>
+				</div>
+
+				<div class="email flex flex-col gap-4 w-full mt-4">
+					<div class="email text-xl font-bold w-full">Email</div>
+					<input type="email" id="email-l" class="bg-transparent border-b-2 border-blue-300 outline-none">
+				</div>
+				<div class="password flex flex-col gap-4 w-full mt-4">
+					<div class="email text-xl font-bold w-full">password</div>
+					<input type="password" visible="" id="password-l" class="bg-transparent border-b-2 border-indigo-400 outline-none">
+				</div>
+
+
+				
+
+				<div class="submit w-full mt-4">
+					<button onclick="login()" class="w-full rounded-md bg-gray-800 text-white p-2 text-xl font-bold">
+						<div class="bg-clip-text bg-gradient-to-r from-teal-200 to-purple-400 text-transparent">
+							Login
+
+						</div>
+					</button>	
+					
+					<button class="underline mt-2" onclick="switchLoginState('signup')">Sign Up instead</button>
+				</div>	
+			</div>
+		</div>
+
+	</div>
+
+	<div id="dashBoard"></div>
+
+</body>

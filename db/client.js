@@ -7,7 +7,6 @@ const client = new MongoClient(process.env.MURI, {
 })
 
 
-
 module.exports = {
 	client
 }
