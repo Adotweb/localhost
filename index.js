@@ -5,7 +5,8 @@ const app = express();
 const {WebSocketServer} = require("ws");
 const path = require("path");
 
-const {client} = require("./db/client")
+
+const {mongoConnect, getDB} = require("./db/client")
 
 const {decycle} = require("./utils")
 
@@ -69,7 +70,7 @@ wss.on("connection", socket => {
 				if(!data.hasOwnProperty("id") || !data.hasOwnProperty("secret")) break;
 
 			
-				let db = client.db("localhost");
+				let db = getDB();
 				let collection = db.collection("app_ids"); 
 
 
@@ -257,4 +258,7 @@ app.get("*", (req, res) => {
 	res.sendFile(path.join(__dirname, "static", "notFound.html"))
 })
 
-httpServer.listen(PORT)
+
+mongoConnect(() => {
+	httpServer.listen(PORT || 5000)
+})

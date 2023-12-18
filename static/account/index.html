@@ -91,6 +91,25 @@ function signUp(){
 
 }
 
+function logout(){
+	$deleteKey("user")
+	switchLoginState("login")
+}
+
+function charge(){
+if($get("user")){
+	
+	let {email} = $get("user")
+	console.log(id)
+
+	app.rest.post("/stripe_api/charge", {
+		email
+	})
+
+} else {
+alert("no such user")
+}
+}
 
 </script>
 
@@ -176,9 +195,30 @@ function signUp(){
 
 	</div>
 
-	<div id="hidden dashBoard w-full">
+	
+	
+	<div id="dashBoard" class="hidden w-full  font-bold">
+			<div class="sticky w-full top-0 left-0 z-10 flex justify-between p-4 text-xl backdrop-blur-md">
+				<div class="right flex justify-space gap-4">
+					<a href="./server">Server</a>
+					<a href="./client">Client</a>
+					<a href="./documentation">Docs</a>
+				</div>
 
-				
+
+				<div class="right flex justify-space gap-4">
+					<button onclick="logout()">Log out</button>
+				</div>
+			</div>
+
+
+		<div class="flex flex-col items-center w-full">
+
+			<button onclick="charge()">random charge</button>
+			
+
+		</div>
+
 
 	</div>
 

@@ -5,7 +5,10 @@ const stripe = require("stripe")(process.env.STRIPE_KEY)
 const router = express.Router() 
 
 
-const {client} = require("../db/client")
+
+const {getDB} = require("../db/client")
+
+router.use(express.json())
 
 router.get("/", (req, res) => {
 	
@@ -13,6 +16,26 @@ router.get("/", (req, res) => {
 	res.send("Hello there")
 })
 
+
+
+router.post("/charge", async (req, res) => {
+	
+
+	const {email} = req.body
+	
+
+	let users = getDB().collection("users")
+
+	let user = await users.findOne({email})
+
+	console.log(user)
+
+	if(user){
+		res.send({success:"user exists"})
+	} else {
+		res.send({error:"user does no exist"})
+	}
+})
 
 router.get("/checkout", async (req, res) => {
 
@@ -37,7 +60,11 @@ router.get("/checkout", async (req, res) => {
 })
 
 
-const endpointSecret = "whsec_ffb03ea580ee5b81b26263b432d8aaabb2c3116a73cfa81c2f564fcb9b5d32ff"
+const endpointSecret = process.env.STRIPE_WEBHOOK
+
+
+router.post("/dostuff", )
+
 
 router.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
   const sig = request.headers['stripe-signature'];
@@ -73,16 +100,16 @@ router.post('/webhook', express.raw({type: 'application/json'}), async (request,
 	}
 
 
-	let users = client.db("localhost").collection("users") 
+	let users = getDB().collection("users") 
 
-	const apps = client.db("localhost").collection("apps")
+	const apps = getDB().collection("apps")
 
 
 	if(email){
 
 		let customer = await users.findOne({email})
 		
-
+		console.log(customer)
 	}
 
 

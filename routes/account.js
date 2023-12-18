@@ -6,7 +6,7 @@ const router = express.Router()
 const crypto = require("crypto-js")
 
 
-const {client} = require("../db/client")
+const {getDB} = require("../db/client")
 
 
 router.use(express.json())
@@ -24,15 +24,15 @@ router.post("/login", async (req, res) => {
 
 
 	let hashedPass = crypto.SHA256(password).toString()
+	
 
-	let db = client.db("localhost")
+	let db = getDB()
 	let col = db.collection("users")
 
 	let user = await col.findOne({
 		email
 	})
 
-	client.close()
 	
 	if(user.password === hashedPass){
 		
@@ -58,7 +58,8 @@ router.post("/signup", async (req, res) => {
 
 	let currentUser = {}
 
-	const users = client.db("localhost").collection("users")
+
+	const users = getDB().collection("users")
 
 	if(!req.body.email){
 		res.send({error:"no email provided"})
@@ -96,7 +97,6 @@ router.post("/signup", async (req, res) => {
 	
 	const response = await users.insertOne(currentUser)
 	
-	client.close()
 
 	currentUser.password = undefined
 

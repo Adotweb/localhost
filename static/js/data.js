@@ -9,6 +9,6 @@ function $get(key){
 }
 
 
-function deleteKey(key){
-	localStorage.delete(key)
+function $deleteKey(key){
+	localStorage.removeItem(key)
 }
