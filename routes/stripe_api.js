@@ -18,24 +18,30 @@ router.get("/", (req, res) => {
 
 
 
-router.post("/charge", async (req, res) => {
-	
+const calculateOrderAmount = (items) => {
+  // Replace this constant with a calculation of the order's amount
+  // Calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
 
-	const {email} = req.body
-	
+router.post("/create-payment-intent", async (req, res) => {
+  const { items } = req.body;
 
-	let users = getDB().collection("users")
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: calculateOrderAmount(items),
+    currency: "chf",
+    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
 
-	let user = await users.findOne({email})
-
-	console.log(user)
-
-	if(user){
-		res.send({success:"user exists"})
-	} else {
-		res.send({error:"user does no exist"})
-	}
-})
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
+});
 
 router.get("/checkout", async (req, res) => {
 

@@ -104,7 +104,7 @@ if($get("user")){
 
 	app.rest.post("/stripe_api/charge", {
 		email
-	})
+	}).then(res => console.log(res.client_secret))
 
 } else {
 alert("no such user")
