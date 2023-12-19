@@ -15,23 +15,30 @@ function $deleteKey(key){
 
 
 
-function checkAccount(callback){
+async function checkAccount(callback){
 
+	let session = $get("user-session");
 
-	let currentUser = $get("user")
-
-	fetch("/login", {
+	fetch("/account/verify-session", {
 		method:"POST",
 		headers:{
-			"Content-Type":"application/json"
+			"Content-Type":"application/json",
 		},
-		body:JSON.stringify({
-			email:currentUser.email,
-
-		})
+		body:JSON.stringify({session})
 	}).then(res => res.json())
+	
 		.then(res => {
 
+
+			if(res.success){
+
+				$store("user", res.user)
+
+				window.location.href = "/checkout"
+			} else{
+				window.location.href = "/account"	
+			}
 		})
+
 
 }

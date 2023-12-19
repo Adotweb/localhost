@@ -4,12 +4,45 @@ const express = require("express");
 const router = express.Router()
 
 const crypto = require("crypto-js")
+const cr = require("crypto")
 
+const {v4} = require("uuid")
 
 const {getDB} = require("../db/client")
 
 
 router.use(express.json())
+
+
+router.post("/verify-session", async (req, res) => {
+
+	const {session} = req.body
+
+
+	console.log(session)
+
+	let user = await getDB().collection("users").findOne({session}, {
+		projection:{
+			name:1, 
+			email:1,
+			surname:1,
+			customerId:1
+		}
+	})
+
+
+	if(user){
+		console.log(user)
+
+		res.send({success:true, user})
+
+		return
+	} else {
+		res.send({error:"no session?"})
+	}
+
+})
+
 
 router.post("/login", async (req, res) => {
 
@@ -38,9 +71,27 @@ router.post("/login", async (req, res) => {
 		
 		user.password = undefined
 
+	
+		let session = v4()
+
+
+
+
+		await getDB().collection("users").updateOne({
+			email
+		}, {
+			"$set":{
+				session
+			}
+		}, {
+			upsert:true
+		})
+
+
 		res.send({
 			success:true,
-			data:user
+			session,
+			id:user._id
 		})
 
 		return
@@ -88,7 +139,7 @@ router.post("/signup", async (req, res) => {
 
 	const {email, name, surname, password} = req.body; 
 
-
+	
 	
 	const customer = await stripe.customers.create({
 		email,
@@ -98,12 +149,16 @@ router.post("/signup", async (req, res) => {
 	let customerId = customer.id
 
 
+	const session = v4()
+
+
 	currentUser = {
 		email, 
 		name, 
 		surname, 
 		password:crypto.SHA256(password).toString(),
-		customerId
+		customerId,
+		session
 	}
 
 	
@@ -111,12 +166,11 @@ router.post("/signup", async (req, res) => {
 
 
 
-
 	currentUser.password = undefined
 
 	res.send({
 		success:true,
-		data:currentUser
+		session	
 	})
 })
 

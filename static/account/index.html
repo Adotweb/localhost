@@ -19,7 +19,7 @@
 	document.addEventListener("DOMContentLoaded", () => {
 		
 		
-		let user = $get("user")
+		let user = $get("user-session")
 			
 		if(user) switchLoginState("logged")
 		
@@ -65,7 +65,9 @@
 		}).then(res => {
 			console.log(res)	
 			if(res.success){
-				$store("user", res.data)
+				
+				$store("user-session", res.session)
+
 				switchLoginState("logged")	
 			}
 
@@ -85,7 +87,8 @@ function signUp(){
 	
 		if(res.success){
 			switchLoginState("logged");
-			$store("user", res.data)	
+
+			$store("user-session", res.session)
 		}	
 	})
 
@@ -93,6 +96,7 @@ function signUp(){
 
 function logout(){
 	$deleteKey("user")
+	$deleteKey("user-session")
 	switchLoginState("login")
 }
 
