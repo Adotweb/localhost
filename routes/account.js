@@ -1,4 +1,4 @@
-
+const stripe = require("stripe")(process.env.STRIPE_KEY)
 const express = require("express");
 
 const router = express.Router()
@@ -87,16 +87,30 @@ router.post("/signup", async (req, res) => {
 	}
 
 	const {email, name, surname, password} = req.body; 
-		
+
+
+	
+	const customer = await stripe.customers.create({
+		email,
+		name, 
+	})
+
+	let customerId = customer.id
+
+
 	currentUser = {
 		email, 
 		name, 
 		surname, 
 		password:crypto.SHA256(password).toString(),
+		customerId
 	}
+
 	
 	const response = await users.insertOne(currentUser)
-	
+
+
+
 
 	currentUser.password = undefined
 

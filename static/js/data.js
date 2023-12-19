@@ -12,3 +12,26 @@ function $get(key){
 function $deleteKey(key){
 	localStorage.removeItem(key)
 }
+
+
+
+function checkAccount(callback){
+
+
+	let currentUser = $get("user")
+
+	fetch("/login", {
+		method:"POST",
+		headers:{
+			"Content-Type":"application/json"
+		},
+		body:JSON.stringify({
+			email:currentUser.email,
+
+		})
+	}).then(res => res.json())
+		.then(res => {
+
+		})
+
+}

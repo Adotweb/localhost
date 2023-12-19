@@ -15,10 +15,13 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-  const response = await fetch("/stripe_api/create-payment-intent", {
+  const response = await fetch("/stripe_api/create-subscription", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items }),
+    body: JSON.stringify({
+	    priceId:"price_1OOE3gK9X9Bv58NryL2YiVLW",
+	    customerId:$get("user").customerId
+    }),
   });
   const { clientSecret } = await response.json();
 

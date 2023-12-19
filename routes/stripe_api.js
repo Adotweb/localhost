@@ -10,12 +10,6 @@ const {getDB} = require("../db/client")
 
 router.use(express.json())
 
-router.get("/", (req, res) => {
-	
-	
-	res.send("Hello there")
-})
-
 
 
 const calculateOrderAmount = (items) => {
@@ -43,33 +37,39 @@ router.post("/create-payment-intent", async (req, res) => {
   });
 });
 
-router.get("/checkout", async (req, res) => {
+
+router.post("/create-subscription", async (req, res) => {
+
+	const {customerId, priceId} = req.body;
 
 
-	console.log(req.originalUrl, req.path)	
-
-	const session = await stripe.checkout.sessions.create({
-		mode:"subscription",
-		payment_method_types:["card"],
-		line_items:[
-			{
-				price:"price_1OOE3gK9X9Bv58NryL2YiVLW",
-				quantity:"1"
-			}
-		],
-		success_url:"http://localhost:5000",
-		cancel_url:"http://localhost:5000"
-	})
+	try{
+		const subscription = await stripe.subscriptions.create({
+      			customer: customerId,
+      			items: [{
+        			price: priceId,
+      			}],
+      			payment_behavior: 'default_incomplete',
+     			payment_settings: { save_default_payment_method: 'on_subscription' },
+     			expand: ['latest_invoice.payment_intent'],
+    		});
 
 
-	res.redirect(session.url)
+		res.send({
+			subscriptionId:subscription.id, 
+			clientSecret:subscription.latest_invoice.payment_intent.client_secret
+		})
+
+	} catch(e) {
+		res.send({error:e})
+	}
+
 })
+
 
 
 const endpointSecret = process.env.STRIPE_WEBHOOK
 
-
-router.post("/dostuff", )
 
 
 router.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
