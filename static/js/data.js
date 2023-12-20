@@ -42,3 +42,16 @@ async function checkAccount(callback){
 
 
 }
+
+function navbarAccount(){
+	
+	document.addEventListener("DOMContentLoaded", () => {
+		let accountLink = document.getElementById("account") 
+
+
+		accountLink.innerHTML = $get("user-session") ? "Account" : "Sign up"
+
+	
+	}) 
+
+}
