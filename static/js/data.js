@@ -15,7 +15,7 @@ function $deleteKey(key){
 
 
 
-async function checkAccount(callback){
+async function redirectToProduct(product){
 
 	let session = $get("user-session");
 
@@ -34,7 +34,16 @@ async function checkAccount(callback){
 
 				$store("user", res.user)
 
-				window.location.href = "/checkout"
+
+				if(product === "lan"){
+					window.location.href = "/account"; 
+
+				}if(product === "server"){
+					window.location.href = "/checkout";
+				}if(product === "aws"){
+					window.location.href = "/contact"
+				}
+
 			} else{
 				window.location.href = "/account"	
 			}
