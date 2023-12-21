@@ -21,8 +21,7 @@ const navBarText = `	<div class="sticky top-0 left-0 z-10 flex justify-between p
 
 
 		<div class="right flex justify-space gap-4">
-			<a href="./about">About</a>
-			<a href="./team">Ω</a>
+			<a href="/">Home</a>
 			<a id="accountref" href="./account">Sign up</a>
 		</div>
 	</div>

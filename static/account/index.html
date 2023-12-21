@@ -1,0 +1,32 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="icon" href="/icons/favicon.ico">
+
+  <script src="/js/data.js"></script>
+  
+  <script src="/js/components/navbar.js" defer></script>
+
+</head>
+
+<script>
+	
+	let user = $get("user"); 
+
+
+	if(!user) {
+		window.location.href = "./login.html"
+	}
+</script>
+
+
+<body class="m-0 flex flex-col">
+	
+	<div class="navbar"></div>
+	
+
+	
+
+</body>

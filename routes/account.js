@@ -46,6 +46,7 @@ router.post("/verify-session", async (req, res) => {
 
 router.post("/login", async (req, res) => {
 
+	console.log(req.body)
 
 	if(!req.body.email || !req.body.password) {
 		res.send({error:"email or password incorrect"})
@@ -91,7 +92,6 @@ router.post("/login", async (req, res) => {
 		res.send({
 			success:true,
 			session,
-			id:user._id
 		})
 
 		return
