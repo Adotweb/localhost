@@ -19,7 +19,6 @@ router.post("/verify-session", async (req, res) => {
 	const {session} = req.body
 
 
-	console.log(session)
 
 	let user = await getDB().collection("users").findOne({session}, {
 		projection:{
@@ -46,7 +45,6 @@ router.post("/verify-session", async (req, res) => {
 
 router.post("/login", async (req, res) => {
 
-	console.log(req.body)
 
 	if(!req.body.email || !req.body.password) {
 		res.send({error:"email or password incorrect"})

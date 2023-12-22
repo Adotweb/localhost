@@ -3,7 +3,6 @@ async function login(){
 
 	let email = document.getElementById("email").value
 
-	console.log(password, email)
 	
 	let res = await fetch("/account/login", {
 		method:"POST",
@@ -18,8 +17,10 @@ async function login(){
 	let usersession = await res.json()
 	
 
-	$set("user-session", usersession)
+	let session = usersession.session	
+	$set("user-session", session)	
 
+	window.location.href = "/account/"
 }
 
 async function signup(){
@@ -40,11 +41,11 @@ async function signup(){
 	})
 
 	let usersession = await res.json()
-
+	
+	if(!usersession.success)
 	$set("user-session", usersession)
-
-
-
+	
+	window.location.href = "/account/"	
 }
 
 

@@ -13,12 +13,14 @@
 
 <script>
 	
-	let user = $get("user"); 
+	let usersesh = $get("user-session"); 
 
 
-	if(!user) {
-		window.location.href = "./login.html"
+	if(!usersesh) {
+		window.location.replace(window.location.origin + "/account/login.html")	
 	}
+
+	
 </script>
 
 
