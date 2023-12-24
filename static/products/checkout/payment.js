@@ -8,7 +8,7 @@ const stripe = Stripe(pub_key);
 const params = new URLSearchParams(window.location.search);
 
 const products = {
-	"server-builder": (window.location.protocol =="https:") ? "price_1OOE3gK9X9Bv58NryL2YiVLW" : "price_1OQsrYK9X9Bv58NrOa88727F"
+	"server-builder": (window.location.protocol =="https:") ? "price_1OQsrYK9X9Bv58NrOa88727F": "price_1OQsrYK9X9Bv58NrOa88727F"
 }
 
 if(params.get("reactivate")){
