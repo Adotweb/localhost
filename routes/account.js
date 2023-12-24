@@ -8,7 +8,7 @@ const cr = require("crypto")
 
 const {v4} = require("uuid")
 
-const {getDB} = require("../db/client")
+const {getDB, ObjectId} = require("../db/client")
 
 
 router.use(express.json())
@@ -25,13 +25,13 @@ router.post("/verify-session", async (req, res) => {
 			name:1, 
 			email:1,
 			surname:1,
-			customerId:1
+			customerId:1,
+			projects:1,
+			subscriptionStatus:1
 		}
 	})
 
-
 	if(user){
-		console.log(user)
 
 		res.send({success:true, user})
 
@@ -65,6 +65,11 @@ router.post("/login", async (req, res) => {
 		email
 	})
 
+
+	if(!user){
+		res.send({error:"no such user"})
+		return
+	}
 	
 	if(user.password === hashedPass){
 		
@@ -101,9 +106,6 @@ router.post("/login", async (req, res) => {
 
 router.post("/signup", async (req, res) => {
 	
-	let errors = [];
-	let success = false;
-	let data = false; 
 
 	let currentUser = {}
 
@@ -156,7 +158,9 @@ router.post("/signup", async (req, res) => {
 		surname, 
 		password:crypto.SHA256(password).toString(),
 		customerId,
-		session
+		session,
+		projects:[],
+		subscriptionStatus:"free"
 	}
 
 	
@@ -164,7 +168,6 @@ router.post("/signup", async (req, res) => {
 
 
 
-	currentUser.password = undefined
 
 	res.send({
 		success:true,
@@ -172,5 +175,63 @@ router.post("/signup", async (req, res) => {
 	})
 })
 
+
+router.post("/createproject", async (req, res) => {
+	
+
+	const {projectName, owner} = req.body;
+
+	
+
+	let app_id = v4();
+	let api_key = v4();
+
+	let user = await getDB().collection("users").findOne({
+		_id:new ObjectId(owner)		
+	})
+
+
+	if(user.projects.length >= 1){
+		res.send({error:"only one project per user"})
+
+		return
+	}
+
+	let tier = user.subscriptionStatus
+
+
+	await getDB().collection("projects").insertOne({
+		app_id, 
+		api_key,
+		projectName,
+		owner,
+		tier
+	})
+
+	await getDB().collection("users").updateOne({_id:new ObjectId(owner)},{
+		$push:{
+			projects:app_id
+		}
+	})
+		
+
+	res.send({success:"project created!"})
+})
+
+
+router.post("/getprojects", async (req, res) => {
+
+	let {_id} = req.body;
+
+
+
+	let p = await getDB().collection("projects").find({
+		owner: _id
+	}).toArray()
+
+
+	res.send({success:true, p})
+
+})
 
 module.exports = router

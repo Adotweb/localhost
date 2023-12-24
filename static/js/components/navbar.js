@@ -1,11 +1,6 @@
 async function checkAccount(){
-	let user = $get("user")
-
+	let user
 		let accountref = document.getElementById("accountref")
-	if(user){
-
-		accountref.innerHTML = user.name
-	}else {
 		
 		const usersession = $get("user-session");
 
@@ -21,12 +16,10 @@ async function checkAccount(){
 			})
 		})
 		
-
 		user = (await res.json()).user;
 		$set("user", user)
 
 		accountref.innerHTML = user.name
-	}
 }
 
 

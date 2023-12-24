@@ -4,7 +4,32 @@ const stripe = Stripe("pk_test_51KO6DEK9X9Bv58Nrz8Oo9YENoMmEqCIUNpJ8zTxubQwlrZf6
 const params = new URLSearchParams(window.location.search);
 
 const products = {
-	"lan-partier":"price_1OOE3gK9X9Bv58NryL2YiVLW"
+	"server-builder":"price_1OOE3gK9X9Bv58NryL2YiVLW"
+}
+
+if(params.get("reactivate")){
+	
+	document.getElementById("desc").style.display ="none";
+	document.getElementById("reactivate").style.display = "flex"
+
+} else {
+
+
+	switch(params.get("product")){
+	
+	case "lan-partier":
+		window.location.href = "/account/"
+
+		break;
+	
+
+	case "aws-contender":
+		window.location.href = "/contact"
+
+		break; 
+
+	
+
 }
 
 if(!($get("user"))){
@@ -20,16 +45,24 @@ fetch("/stripe_api/create-subscription", {
 	},
 	body:JSON.stringify({
 		priceId:products[params.get("product")],
-		customerId:$get("user").customerId
+		customerId:$get("user").customerId,
+		userId:$get("user")["_id"]
 	})
 }).then(res => res.json())
 	.then(res => {
 
+		if(res.error){
+				
+				const messageContainer = document.querySelector('#error-message');
+				messageContainer.textContent = res.error;
+		}
+		if(res.redirect){
+			window.location.href = res.redirect
+		}
 
-		const {subscriptonId, clientSecret} = res
+		const {clientSecret} = res
 
 
-		console.log(res)
 
 		const options = {
   			clientSecret,
@@ -39,37 +72,66 @@ fetch("/stripe_api/create-subscription", {
 
 		const paymentElement = elements.create('payment');
 		paymentElement.mount('#payment-element');
+		let subscribeButton = document.getElementById("submit")
 
 
+
+		paymentElement.on("ready", () => {
+
+			subscribeButton.style.display = "flex"
+		})
 
 		const form = document.getElementById('payment-form');
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
+		form.addEventListener('submit', async (event) => {
+ 			event.preventDefault();
 
-  const {error} = await stripe.confirmPayment({
-    //`Elements` instance that was used to create the Payment Element
-    elements,
-    confirmParams: {
-      return_url: window.location.origin,
-    }
-  });
+  			const {error} = await stripe.confirmPayment({
+    				elements,
+    				confirmParams: {
+      					return_url: window.location.origin,
+				}
+			});
 
-  if (error) {
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Show error to your customer (for example, payment
-    // details incomplete)
-    const messageContainer = document.querySelector('#error-message');
-    messageContainer.textContent = error.message;
-  } else {
-    // Your customer will be redirected to your `return_url`. For some payment
-    // methods like iDEAL, your customer will be redirected to an intermediate
-    // site first to authorize the payment, then redirected to the `return_url`.
-  }
-});
+  			if (error) {
+    			
+				const messageContainer = document.querySelector('#error-message');
+				messageContainer.textContent = error.message;
+  			
+			} else {
+  			
+			}
+		});
+
+	
 
 	})
 
 
+
+
+
+}
+
+async function confirmReactivation(){
+
+	await fetch("/stripe_api/reactivate", {
+		method:"POST",
+		headers:{
+			"Content-Type":"application/json"
+		},
+		body:JSON.stringify({
+			subscriptionId : params.get("reactivate"),
+			customerId : $get("user").customerId
+		})
+	}).then(res => {
+		if(res.error){
+			return
+		}
+
+		window.location.href = "/account/"
+	})
+
+}
 
 

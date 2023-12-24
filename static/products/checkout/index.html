@@ -18,22 +18,53 @@
 </head>
 
 
-<body>
+<body class="m-0 w-full font-bold">
 	<div class="navBar"></div>
 
+
 	
-	<div class="container absolute top-p left-0 w-full h-full flex justify-center items-center">
+	<div class="absolute top-0 left-0 h-full w-full flex justify-center items-center">
 
-
+		<div id="reactivate" class="hidden justify-center items-center bg-gray-100 rounded-md p-4">
 			
-		<form id="payment-form">
-  			<div id="payment-element">
-  			</div>
-			<button id="submit">Subscribe</button>
-			<div id="error-message">
-			</div>
-		</form>		
+			<button onclick="confirmReactivation()">
+				reactivate subscription?
+			</button>
 
+		</div>	
+
+		<div id="desc" class="flex flex-col md:flex-row items-center md:items-start md:justify-center w-[90%] max-w-[800px] border-2 p-4 rounded-md">
+
+
+			<div class="left w-1/2 flex flex-col">
+			
+				<img class="w-[100px]" src="/img/logo_tr.png" alt="">
+				
+				<div class="w-full h-full flex flex-col">
+					<h1 class="text-3xl h-full">Server builder</h1>
+						
+					<ul>
+						<li>Subscription for 5 Chf billed monthly</li>
+					</ul>
+
+				</div>
+
+			</div>
+
+			<form id="payment-form" class="w-1/2">
+  				<div id="payment-element">
+  				</div>
+				<button class="bg-black rounded p-2 mt-4 hidden" id="submit">
+					<div class="bg-gradient-to-r from-orange-300 to-red-400 bg-clip-text text-transparent text-xl">
+						Subscribe
+					</div>
+				</button>
+				<div id="error-message">
+				</div>
+			</form>		
+
+
+		</div>
 	</div>
 
 	

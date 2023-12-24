@@ -9,3 +9,8 @@ function $delete(key){
 	localStorage.removeItem(key)
 }
 
+
+
+function signify(message){
+	alert(message)
+}

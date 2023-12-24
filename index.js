@@ -71,21 +71,20 @@ wss.on("connection", socket => {
 
 			
 				let db = getDB();
-				let collection = db.collection("app_ids"); 
+				let collection = db.collection("projects"); 
 
 
 				
 
 				let results = await collection.findOne({
-					server_id:data.id
+					app_id:data.id
 				})
-
 
 
 				if(!results) break;
 				
 
-				if(data.secret !== results.secret) break;
+				if(data.secret !== results.api_key) break;
 
 
 
