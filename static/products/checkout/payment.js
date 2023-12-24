@@ -65,7 +65,8 @@ fetch("/stripe_api/create-subscription", {
 		}
 
 		const {clientSecret} = res
-
+		
+		console.log(clientSecret)
 
 
 		const options = {
