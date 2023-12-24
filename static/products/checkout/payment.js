@@ -54,7 +54,7 @@ fetch("/stripe_api/create-subscription", {
 	})
 }).then(res => res.json())
 	.then(res => {
-
+		console.log(res)
 		if(res.error){
 				
 				const messageContainer = document.querySelector('#error-message');
