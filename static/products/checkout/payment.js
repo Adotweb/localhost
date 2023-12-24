@@ -1,4 +1,7 @@
-const stripe = Stripe("pk_test_51KO6DEK9X9Bv58Nrz8Oo9YENoMmEqCIUNpJ8zTxubQwlrZf6CB3bg37xNngHhtGWatC2GYXmLDIj59cJorcYztK000CJMqqZ1C");
+let pub_key = window.location.protocol === "https:" ? "pk_live_51KO6DEK9X9Bv58NrPySQL9DiURYvBwGTMwb4EovkTq7z6o4js80hX3v6nts3YtzlXQpGiDEFp9PLhxATJGjyJcao00QNjCj8ML" : "pk_test_51KO6DEK9X9Bv58Nrz8Oo9YENoMmEqCIUNpJ8zTxubQwlrZf6CB3bg37xNngHhtGWatC2GYXmLDIj59cJorcYztK000CJMqqZ1C"
+
+
+const stripe = Stripe(pub_key);
 
 
 const params = new URLSearchParams(window.location.search);
