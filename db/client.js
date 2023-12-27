@@ -12,7 +12,10 @@ const mongoConnect = callback => {
 	client.connect(process.env.MURI, {
 		serverApi:ServerApiVersion.v1
 	}).then(client => {
-		_db = client.db("localhost")
+
+		if(process.env.ENV==="dev"){_db = client.db("localhost")}
+		else _db = client.db("localhost-prod")
+			
 
 		callback();
 	}).catch(e => {
@@ -27,6 +30,7 @@ const getDB = () => {
 	} else {
 		throw new Error("DB connect failed")
 	}
+
 }
 
 

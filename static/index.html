@@ -4,16 +4,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <link rel="icon" href="/icons/favicon.ico">
+	
+<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 
-<script src="/js/data.js"></script>
-<script src="/js/components/navbar.js" defer></script>
 </head>
 
 <body class="m-0 font-bold">
 
 	
-	<div class="navBar"></div>		
-
+	<div hx-get="/navbar" hx-swap="outerHTML" hx-trigger="load"></div>
 
 	<div class="w-full flex flex-col items-center md:px-10 text-3xl">
 	

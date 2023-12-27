@@ -1,6 +1,8 @@
 const stripe = require("stripe")(process.env.STRIPE_KEY)
 const express = require("express");
-
+const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
+const path = require("path")
 const router = express.Router()
 
 const crypto = require("crypto-js")
@@ -12,167 +14,111 @@ const {getDB, ObjectId} = require("../db/client")
 
 
 router.use(express.json())
-
-
-router.post("/verify-session", async (req, res) => {
-
-	const {session} = req.body
+router.use(bodyParser())
+router.use(cookieParser())
 
 
 
-	let user = await getDB().collection("users").findOne({session}, {
-		projection:{
-			name:1, 
-			email:1,
-			surname:1,
-			customerId:1,
-			projects:1,
-			subscriptionStatus:1
-		}
-	})
 
-	if(user){
+router.get("/", (req, res) => {
+	
+	let cookies = req.cookies;
 
-		res.send({success:true, user})
+	console.log(cookies)
 
+	
+	if(!cookies.session){
+		
+			
+		res.redirect("/account/login.html")
 		return
-	} else {
-		res.send({error:"no session?"})
 	}
+	
+	
+	res.sendFile(path.join(__dirname, "..", "static", "account", "index.html"))
 
 })
-
 
 router.post("/login", async (req, res) => {
 
 
-	if(!req.body.email || !req.body.password) {
-		res.send({error:"email or password incorrect"})
-		return	
+	if(req.cookies.session){
+		
+		res.redirect("/account/")
+		return
 	}
 
+	let {email, password} = req.body;	
 
-	const {email, password} = req.body; 
+	let users = getDB().collection("users")
 
 
-	let hashedPass = crypto.SHA256(password).toString()
-	
 
-	let db = getDB()
-	let col = db.collection("users")
+	password = crypto.SHA256(password).toString()
 
-	let user = await col.findOne({
-		email
-	})
+	let user = await users.findOne({email, password})
 
+
+	console.log(user)
 
 	if(!user){
-		res.send({error:"no such user"})
-		return
-	}
-	
-	if(user.password === hashedPass){
 		
-		user.password = undefined
-
-	
-		let session = v4()
-
-
-
-
-		await getDB().collection("users").updateOne({
-			email
-		}, {
-			"$set":{
-				session
-			}
-		}, {
-			upsert:true
-		})
-
-
-		res.send({
-			success:true,
-			session,
-		})
-
+		res.send("email not found or password incorrect")
 		return
-	}else{
-		res.send({error:"email or password are wrong"})
 	}
 
+	let session = v4();
+
+	await users.updateOne({
+		email, password
+	}, {
+		$set:{
+			session
+		}
+	}, {
+		$upsert:"true"
+	})	
+
+
+	res.cookie("session", session)
+	res.redirect("/account/")
 })
 
 router.post("/signup", async (req, res) => {
+
+	let users = getDB().collection("users")
 	
-
-	let currentUser = {}
-
-
-	const users = getDB().collection("users")
-
-	if(!req.body.email){
-		res.send({error:"no email provided"})
-
-		return
-	} 
+	let {name, surname, email, password} = req.body;
 	
-	let possibleuser = await users.findOne({email:req.body.email})
+	let emailexists = await users.findOne({email})
 
-	if(possibleuser){
-		res.send({error:"email already exists"})
+
+	if(emailexists){
+		
+		res.send("this email is already in use")
 		return
 	}
 
-	if(!req.body.name){
-		res.send({error:"no name provided"})
-		return
-	}
-	if(!req.body.surname){
-		res.send({error:"no surname provided"})
-		return
-	}
-	if(!req.body.password){
-		res.send({error:"no password provided"})
-	}
+	password = crypto.SHA256(password).toString()
 
-	const {email, name, surname, password} = req.body; 
 
-	
-	
-	const customer = await stripe.customers.create({
+	let session = v4();
+
+	let newuser = {
+		name, 
+		password,
 		email,
-		name, 
-	})
-
-	let customerId = customer.id
-
-
-	const session = v4()
-
-
-	currentUser = {
-		email, 
-		name, 
-		surname, 
-		password:crypto.SHA256(password).toString(),
-		customerId,
+		surname,
+		tier:"free",
 		session,
-		projects:[],
-		subscriptionStatus:"free"
-	}
+		projects:[]
+	}	
 
-	
-	const response = await users.insertOne(currentUser)
+	await users.insertOne(newuser)	
 
 
-
-
-	res.send({
-		success:true,
-		session	
-	})
+	res.cookie("session", session)
+	res.redirect("/account/")
 })
 
 
