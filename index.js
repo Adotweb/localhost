@@ -47,7 +47,6 @@ wss.on("connection", socket => {
 
 		const {data, event} = JSON.parse(msg.toString());
 
-		console.log(event)
 
 		switch(event){
 			
@@ -55,6 +54,7 @@ wss.on("connection", socket => {
 
 				id = data.id;
 				secret = data.secret;
+
 
 				if(!id || !secret) {
 					socket.Send({
@@ -72,9 +72,10 @@ wss.on("connection", socket => {
 				})
 
 
+
 				if(!user){
 					socket.Send({
-						event:"server.login.unautharized",
+						event:"server.login.unauthorized",
 						data:{}
 					})
 
@@ -85,6 +86,8 @@ wss.on("connection", socket => {
 
 				socket.hostId = id;
 
+
+
 				break;
 
 		
@@ -93,11 +96,13 @@ wss.on("connection", socket => {
 			case "host.rest.response":
 		
 
-				stalledId = data.stalledId
+				requestid = data.requestid
 
 				response = data.response
 
-				stalledResponses.get(stalledId).send(response)
+
+
+				stalledResponses.get(requestid).send(response)
 
 
 				break;
@@ -105,10 +110,12 @@ wss.on("connection", socket => {
 			case "client.login":
 				
 				id = data.id;
+			
+
 
 
 				if(!id){
-					socket.Send({event:"clietnt.login.failed", data:{}})
+					socket.Send({event:"client.login.failed", data:{}})
 					break;	
 				}
 				
@@ -165,20 +172,22 @@ wss.on("connection", socket => {
 				break;
 		}
 
-		socket.on("close", () => {
-
-			if(socket.hostId){
-				hosts.delete(socket.hostId)
-			}if(socket.clientId){
-				clients.delete(socket.clientId)
-			}
-
-
-
-		})
+		
 
 	})
 
+
+	socket.on("close", () => {
+
+		if(socket.hostId){
+			hosts.delete(socket.hostId)
+		}if(socket.clientId){
+			clients.delete(socket.clientId)
+		}
+
+
+
+	})
 })
 
 const stripe_api = require("./routes/stripe_api")
@@ -198,6 +207,7 @@ let stalledResponses = new Map()
 
 app.get("/:serverid/*", (req, res) => {
 	let {serverid} = req.params;
+	
 
 
 	if(hosts.has(serverid)){
@@ -210,7 +220,7 @@ app.get("/:serverid/*", (req, res) => {
 		
 
 		serving.send(JSON.stringify({
-			method:"client-req",
+			event:"client.rest.request",
 			data:{
 				method:"get",
 				route:req.originalUrl.split(serverid)[1], 
@@ -241,7 +251,7 @@ app.post("/:serverid/*", (req, res) => {
 
 
 		serving.send(JSON.stringify({
-			method:"client-req",
+			event:"client.rest.request",
 			data:{
 				method:"post",
 				route:req.originalUrl.split(serverid)[1], 
