@@ -20,11 +20,19 @@ router.use(cookieParser())
 
 
 
+router.get("/dashboard", (req, res) => {
+
+
+	let cookies = req.cookies; 
+
+	console.log(cookies)
+
+})
+
 router.get("/", (req, res) => {
 	
 	let cookies = req.cookies;
 
-	console.log(cookies)
 
 	
 	if(!cookies.session){
@@ -122,62 +130,5 @@ router.post("/signup", async (req, res) => {
 })
 
 
-router.post("/createproject", async (req, res) => {
-	
-
-	const {projectName, owner} = req.body;
-
-	
-
-	let app_id = v4();
-	let api_key = v4();
-
-	let user = await getDB().collection("users").findOne({
-		_id:new ObjectId(owner)		
-	})
-
-
-	if(user.projects.length >= 1){
-		res.send({error:"only one project per user"})
-
-		return
-	}
-
-	let tier = user.subscriptionStatus
-
-
-	await getDB().collection("projects").insertOne({
-		app_id, 
-		api_key,
-		projectName,
-		owner,
-		tier
-	})
-
-	await getDB().collection("users").updateOne({_id:new ObjectId(owner)},{
-		$push:{
-			projects:app_id
-		}
-	})
-		
-
-	res.send({success:"project created!"})
-})
-
-
-router.post("/getprojects", async (req, res) => {
-
-	let {_id} = req.body;
-
-
-
-	let p = await getDB().collection("projects").find({
-		owner: _id
-	}).toArray()
-
-
-	res.send({success:true, p})
-
-})
 
 module.exports = router

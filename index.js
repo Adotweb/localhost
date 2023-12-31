@@ -1,7 +1,7 @@
 const {createServer} = require("http");
 const express = require("express");
 const cookieParser = require("cookie-parser")
-
+const bodyParser = require("body-parser")
 
 const app = express();
 
@@ -199,7 +199,7 @@ app.use("/stripe_api", stripe_api)
 app.use("/account", account)
 
 app.use(express.static(path.join(__dirname, "/static")))
-app.use(express.json())
+app.use(bodyParser())
 app.use(cookieParser())
 
 
@@ -222,7 +222,7 @@ app.get("/:serverid/*", (req, res) => {
 		serving.send(JSON.stringify({
 			event:"client.rest.request",
 			data:{
-				method:"get",
+				method:"GET",
 				route:req.originalUrl.split(serverid)[1], 
 				requestid,
 				request:decycle(req)
@@ -248,15 +248,17 @@ app.post("/:serverid/*", (req, res) => {
 		let serving = hosts.get(serverid); 
 
 
+		
 
+		let request = decycle(req)
 
 		serving.send(JSON.stringify({
 			event:"client.rest.request",
 			data:{
-				method:"post",
+				method:"POST",
 				route:req.originalUrl.split(serverid)[1], 
 				requestid,
-				request:decycle(req)
+				request	
 			}
 		}))
 		
