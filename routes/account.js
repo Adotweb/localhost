@@ -20,13 +20,52 @@ router.use(cookieParser())
 
 
 
-router.get("/dashboard", (req, res) => {
+router.get("/dashboard", async (req, res) => {
 
 
 	let cookies = req.cookies; 
 
-	console.log(cookies)
 
+	let user = await getDB().collection("users").findOne({
+		session:cookies.session
+	}, {
+		projection:{
+			email:1, 
+			name:1,
+			projects:1,
+
+		}
+	})
+
+	if(!user){
+
+		res.send("error no such user")
+
+	}
+
+
+	console.log(user)
+
+	res.send(`
+
+		<div class="flex flex-col items-center">
+
+			<div>${user.name}</div>
+			<div>${user.email}</div>
+	
+			<div>
+				
+				${user.projects.map(project => `
+					
+					<div>${project}</div>
+				`)}
+
+			</div>
+			
+			<a href="/account/logout" class="text-white text-xl fond-bold p-4 bg-red-500">logout</a>
+
+		</div>
+		`)
 })
 
 router.get("/", (req, res) => {
@@ -130,5 +169,12 @@ router.post("/signup", async (req, res) => {
 })
 
 
+router.get("/logout", async (req, res) => {
+
+	res.clearCookie("session")
+
+	res.redirect("/account/login.html")	
+
+})
 
 module.exports = router
