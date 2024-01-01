@@ -56,6 +56,9 @@ wss.on("connection", socket => {
 				secret = data.secret;
 
 
+
+
+
 				if(!id || !secret) {
 					socket.Send({
 						event:"server.login.failed",
@@ -66,7 +69,7 @@ wss.on("connection", socket => {
 				}
 
 				
-				let user = await getDB().collection("hosts").findOne({
+				let user = await getDB().collection("projects").findOne({
 					id, 
 					secret
 				})
