@@ -21,17 +21,6 @@ if(params.get("reactivate")){
 
 	switch(params.get("product")){
 	
-	case "lan-partier":
-		window.location.href = "/account/"
-
-		break;
-	
-
-	case "aws-contender":
-		window.location.href = "/contact"
-
-		break; 
-
 	
 
 }

@@ -33,7 +33,7 @@ router.get("/dashboard", async (req, res) => {
 			email:1, 
 			name:1,
 			projects:1,
-
+			
 		}
 	})
 
@@ -43,26 +43,63 @@ router.get("/dashboard", async (req, res) => {
 
 	}
 
+	let projects;
 
-	console.log(user)
+	if(user.projects.length > 0){
 
+		let owner = user._id.toString();
+
+
+		projects = await getDB().collection("projects").find({owner}).toArray()
+
+	}
+
+		console.log(projects)
 	res.send(`
 
-		<div class="flex flex-col items-center">
+		<div class="flex flex-col md:flex-row items-center md:items-center p-4 w-full gap-4 md:h-[200px]">
 
-			<div>${user.name}</div>
-			<div>${user.email}</div>
-	
-			<div>
+		
+
+			<div class="usercard flex flex-col  p-4 bg-gray-100 rounded-lg drop-shadow-xl">
+
+				<div class="name text-3xl font-bold">${user.name}</div>
+				<div class="email text-xl font-bold">${user.email}</div>
 				
-				${user.projects.map(project => `
-					
-					<div>${project}</div>
-				`)}
+				<br>
+				
+
+				<div class="email text-red-400 text-xl font-bold">Danger Zone</div>
+
+				<button hx-get="/logout" class="p-2 mt-2 w-full rounded-md text-white text-xl font-bold bg-red-400">Logout</button>
 
 			</div>
+
+			<script>
+				function copy(id, secret){
+					navigator.clipboard.writeText(JSON.stringify({
+						id,
+						secret		
+						
+					}))
+				}
+			</script>
+			<div class="projects bg-gray-100 rounded-lg drop-shadow-xl flex flex-col md:grid grid-cols-3 p-4 gap-2 h-full">
+
+				${projects.map(project => `
+
+					<div class="project border-2 rounded-md p-4">
+						<div>project id : ${project.id}</div>
+						<button onclick="copy('${project.id}', '${project.secret}')">Click to copy configuration</button>	
+					</div>
+				`)}
+
+	
+
+
+			</div>			
+
 			
-			<a href="/account/logout" class="text-white text-xl fond-bold p-4 bg-red-500">logout</a>
 
 		</div>
 		`)
@@ -106,7 +143,6 @@ router.post("/login", async (req, res) => {
 	let user = await users.findOne({email, password})
 
 
-	console.log(user)
 
 	if(!user){
 		
@@ -151,6 +187,13 @@ router.post("/signup", async (req, res) => {
 
 	let session = v4();
 
+
+	let project = {
+		id:v4(),
+		secret:v4(),
+			
+	}
+
 	let newuser = {
 		name, 
 		password,
@@ -158,11 +201,14 @@ router.post("/signup", async (req, res) => {
 		surname,
 		tier:"free",
 		session,
-		projects:[]
+		projects:[project.id]
 	}	
 
-	await users.insertOne(newuser)	
+	let user = await users.insertOne(newuser)	
+	
+	project.owner = user.insertedId.toString();
 
+	await getDB().collection("projects").insertOne(project)
 
 	res.cookie("session", session)
 	res.redirect("/account/")
