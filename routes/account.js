@@ -174,7 +174,7 @@ router.get("/dashboard", async (req, res) => {
 
 	res.send(`
 
-		<div class="flex flex-col md:flex-row items-center md:items-center p-4 w-full gap-4 md:h-[200px]">
+		<div class="flex flex-col md:flex-row items-center md:items-center p-4 w-full gap-4 h-[200px] relative">
 
 		
 
@@ -201,7 +201,9 @@ router.get("/dashboard", async (req, res) => {
 					}))
 				}
 			</script>
-			<div class="projects bg-gray-100 rounded-lg drop-shadow-xl flex flex-col md:grid grid-cols-3 p-4 gap-2 h-full w-full">
+
+
+			<div class="bg-gray-100 rounded-lg drop-shadow-xl flex flex-col md:grid grid-cols-3 p-4 gap-2 md:h-[200px] w-full">
 
 				${projects.map(project => `
 
