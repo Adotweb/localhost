@@ -208,6 +208,9 @@ app.use(cookieParser())
 
 let stalledResponses = new Map()
 
+
+
+
 app.get("/:serverid/*", (req, res) => {
 	let {serverid} = req.params;
 	
@@ -220,16 +223,17 @@ app.get("/:serverid/*", (req, res) => {
 
 
 
-		
+		route=req.originalUrl.split(serverid)[1], 
+
+
 
 		serving.send(JSON.stringify({
 			event:"client.rest.request",
 			data:{
 				method:"GET",
-				route:req.originalUrl.split(serverid)[1], 
 				requestid,
-				request:decycle(req)
-									
+				request:decycle(req),
+				route							
 			}
 		}))
 		
@@ -305,9 +309,28 @@ app.get("/navbar", async (req, res) => {
 
 })
 
+app.get("/apps", (req, res) => {
+
+	let apps = [...hosts.keys()]
+
+
+	res.send(`
+
+			
+		<div class="flex flex-col">
+
+			${apps.map(app => `<a href="./${app}/">${app}</a>`)}
+
+		</div>	
+
+		`)
+	
+})
 app.get("*", (req, res) => {
 	res.sendFile(path.join(__dirname, "static", "notFound.html"))
 })
+
+
 
 
 mongoConnect(() => {
