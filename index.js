@@ -289,7 +289,7 @@ app.get("/apps", (req, res) => {
 			
 		<div class="flex flex-col">
 
-			${apps.map(app => `<a href="./${app}/">${app}</a>`)}
+			${apps.map(app => `<a href="/${app}/">${app}</a>`)}
 
 		</div>	
 
