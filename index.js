@@ -209,16 +209,102 @@ app.use(cookieParser())
 let stalledResponses = new Map()
 
 
+app.get("/id/*", (req, res) => {
 
-
-app.get("/:serverid/*", (req, res) => {
-	let {serverid} = req.params;
-	
+	let serverid = req.cookies.currenthost;		
 
 
 	if(hosts.has(serverid)){
 		let requestid = v4();
 
+	res.cookie("currenthost", serverid)
+		let serving = hosts.get(serverid);
+
+
+
+		route=req.originalUrl.split("id")[1], 
+
+
+
+		serving.send(JSON.stringify({
+			event:"client.rest.request",
+			data:{
+				method:"GET",
+				requestid,
+				request:decycle(req),
+				route							
+			}
+		}))
+		
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+
+
+})
+
+app.post("/id/*", (req, res) => {
+
+	let serverid = req.cookies.currenthost; 
+
+
+	if(hosts.has(serverid)){
+		let requestid = v4();
+
+		let serving = hosts.get(serverid); 
+
+
+		
+
+		let request = decycle(req)
+
+		serving.send(JSON.stringify({
+			event:"client.rest.request",
+			data:{
+				method:"POST",
+				route:req.originalUrl.split("id")[1], 
+				requestid,
+				request	
+			}
+		}))
+		
+
+		stalledResponses.set(requestid, res)
+	} else {
+		res.sendFile(path.join(__dirname, "static", "notFound.html"))
+	}
+
+
+})
+
+app.get("/apps", (req, res) => {
+
+	let apps = [...hosts.keys()]
+
+
+	res.send(`
+
+			
+		<div class="flex flex-col">
+
+			${apps.map(app => `<a href="./${app}/">${app}</a>`)}
+
+		</div>	
+
+		`)
+	
+})
+
+app.get("/:serverid/*", (req, res) => {
+	let {serverid} = req.params;
+	
+
+	if(hosts.has(serverid)){
+		let requestid = v4();
+
+	res.cookie("currenthost", serverid)
 		let serving = hosts.get(serverid);
 
 
@@ -309,24 +395,18 @@ app.get("/navbar", async (req, res) => {
 
 })
 
-app.get("/apps", (req, res) => {
-
-	let apps = [...hosts.keys()]
 
 
-	res.send(`
 
-			
-		<div class="flex flex-col">
 
-			${apps.map(app => `<a href="./${app}/">${app}</a>`)}
 
-		</div>	
-
-		`)
-	
-})
 app.get("*", (req, res) => {
+
+
+
+	
+
+
 	res.sendFile(path.join(__dirname, "static", "notFound.html"))
 })
 
