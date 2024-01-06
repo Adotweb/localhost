@@ -377,7 +377,7 @@ app.get("/navbar", async (req, res) => {
 	}
 
 
-	res.send(`	<div class="sticky top-0 left-0 z-10 flex justify-between p-4 text-xl backdrop-blur-md font-bold">
+	res.send(`	<div class="sticky bg-white top-0 left-0 z-10 flex justify-between p-4 text-xl backdrop-blur-md font-bold">
 		<div class="right flex justify-space gap-4">
 			<a href="./server">Server</a>
 			<a href="./client">Client</a>
