@@ -46,7 +46,8 @@ wss.on("connection", socket => {
 		
 
 		const {data, event} = JSON.parse(msg.toString());
-
+	
+		console.log(data)
 
 		switch(event){
 			
