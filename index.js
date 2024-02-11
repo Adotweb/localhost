@@ -111,7 +111,7 @@ wss.on("connection", socket => {
 				
 				let res = "something went wrong"
 
-				if(type.includes("html")){
+				if(type.includes("html") || type.includes("script")){
 					res = new TextDecoder().decode(new Uint8Array(buf))
 	
 				}if(type.includes("image")){
