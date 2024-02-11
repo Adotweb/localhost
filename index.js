@@ -5,7 +5,7 @@ const bodyParser = require("body-parser")
 
 const app = express();
 
-
+const {BSON} = require("bson")
 
 
 const {WebSocketServer} = require("ws");
@@ -45,9 +45,9 @@ wss.on("connection", socket => {
 
 		
 
-		const {data, event} = JSON.parse(msg.toString());
-	
-		console.log(data)
+		const {data, event} = JSON.parse(msg);
+
+
 
 		switch(event){
 			
@@ -98,16 +98,30 @@ wss.on("connection", socket => {
 
 
 			case "host.rest.response":
-		
+				
 
 				requestid = data.requestid
 
 				response = data.response
+				
+				let r = stalledResponses.get(requestid)
+				let {type, buf} = response
 
+				
+				
+				let res = "something went wrong"
 
+				if(type.includes("html")){
+					res = new TextDecoder().decode(new Uint8Array(buf))
+	
+				}if(type.includes("image")){
+					
+					r.set("Content-Type", type)	
+					res = Buffer.from(new Uint8Array(buf))
 
-				stalledResponses.get(requestid).send(response)
+				}
 
+					r.send(res)
 
 				break;
 
