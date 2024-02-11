@@ -107,9 +107,16 @@ wss.on("connection", socket => {
 				let r = stalledResponses.get(requestid)
 				let {type, buf} = response
 
-				
-				
 				let res = "something went wrong"
+				if(!type){
+					
+					res = response
+
+					r.send(res);
+					break;
+
+				}	
+				
 
 				if(type.includes("html") || type.includes("script")){
 					res = new TextDecoder().decode(new Uint8Array(buf))
