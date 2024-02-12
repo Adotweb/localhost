@@ -44,8 +44,19 @@ wss.on("connection", socket => {
 		socket.Send = Send
 
 		
+		let data, event; 
 
-		const {data, event} = JSON.parse(msg);
+
+		try{
+			data = JSON.parse(msg).data;
+			event = JSON.parse(msg).event
+		}catch(e){
+			socket.Send(e)
+
+			return
+		}
+
+
 
 
 
@@ -144,17 +155,20 @@ wss.on("connection", socket => {
 					break;	
 				}
 				
+
+
 				clients.set(id, socket)
+
 				socket.clientId = id
 				break;
 
 
-			case "message.ws.toclient":
-				
-				clientList = data.clientList; 
-				message = data.message;
+			case "ws.message.toclient":
+			
 
-				if(!clientList || !message){
+				let clientList = data.clientList; 
+
+				if(!clientList){
 					socket.Send({
 						event:"toclient.failed"
 					})	
@@ -163,11 +177,10 @@ wss.on("connection", socket => {
 				}
 				
 				clientList.forEach(clientid => {
+					
+					delete data.clientList
 
-					clients.get(clientid).Send({
-						event:"ws.message.toclient",
-						data:message
-					})	
+					clients.get(clientid).Send(data)	
 
 				})				
 
@@ -177,16 +190,19 @@ wss.on("connection", socket => {
 			case "ws.message.tohost":
 
 
-				host = data.host;
-				message = data.host; 
+				let host = data.host;
 
-				if(!host || !message){
+				data.host = undefined;
+
+				message = data; 
+
+				if(!host || !message || !hosts.get(host)){
 					socket.Send({
 						event:"tohost.failed"
 					})
 					break;
 				}
-
+				
 
 				hosts.get(host).Send({
 					event:"ws.message.tohost",
@@ -203,13 +219,14 @@ wss.on("connection", socket => {
 
 
 	socket.on("close", () => {
+		
 
+		
 		if(socket.hostId){
 			hosts.delete(socket.hostId)
 		}if(socket.clientId){
 			clients.delete(socket.clientId)
 		}
-
 
 
 	})
