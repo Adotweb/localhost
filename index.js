@@ -180,6 +180,9 @@ wss.on("connection", socket => {
 					
 					delete data.clientList
 
+
+					if(!clients.get(clientid)) return
+
 					clients.get(clientid).Send(data)	
 
 				})				
