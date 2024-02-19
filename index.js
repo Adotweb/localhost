@@ -178,7 +178,6 @@ wss.on("connection", socket => {
 				
 				clientList.forEach(clientid => {
 					
-					delete data.clientList
 
 
 					if(!clients.get(clientid)) return
