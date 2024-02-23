@@ -127,8 +127,16 @@ wss.on("connection", socket => {
 					break;
 
 				}	
-				
+	
+				if(type.includes("json")){
+					res = new TextDecoder().decode(new Uint8Array(buf))
+					res = JSON.parse(res)
+					console.log(res)
 
+					r.send(res)
+
+					break;
+				}
 				if(type.includes("html") || type.includes("script")){
 					res = new TextDecoder().decode(new Uint8Array(buf))
 	
