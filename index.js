@@ -59,7 +59,6 @@ wss.on("connection", socket => {
 
 
 
-
 		switch(event){
 			
 			case "host.login":
@@ -116,7 +115,26 @@ wss.on("connection", socket => {
 				response = data.response
 				
 				let r = stalledResponses.get(requestid)
-				let {type, buf} = response
+				let {meta, buf} = response
+	
+				let type = meta.headers["content-type"]	
+
+				Object.keys(meta.headers).forEach(header => {
+					
+					r.set(header, meta.headers[header])
+
+				})	
+
+
+
+				if(meta.redirected){
+
+					let newurl = "/id" + new URL(meta.url).pathname
+
+					r.redirect(newurl)
+
+					break
+				}		
 
 				let res = "something went wrong"
 				if(!type){
@@ -126,16 +144,14 @@ wss.on("connection", socket => {
 					r.send(res);
 					break;
 
-				}	
+				}
+
 	
 				if(type.includes("json")){
 					res = new TextDecoder().decode(new Uint8Array(buf))
 					res = JSON.parse(res)
-					console.log(res)
 
-					r.send(res)
 
-					break;
 				}
 				if(type.includes("html") || type.includes("script")){
 					res = new TextDecoder().decode(new Uint8Array(buf))
@@ -146,8 +162,10 @@ wss.on("connection", socket => {
 					res = Buffer.from(new Uint8Array(buf))
 
 				}
+				
 
-					r.send(res)
+				
+				r.send(res)
 
 				break;
 
