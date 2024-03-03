@@ -194,9 +194,9 @@ wss.on("connection", socket => {
 
 				let clientList = data.clientList; 
 
-				if(!clientList){
+				if(!(clientList instanceof Array)){
 					socket.Send({
-						event:"toclient.failed"
+						event:"your clientlist has to be of type Array"
 					})	
 
 					break;
