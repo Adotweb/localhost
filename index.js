@@ -116,7 +116,15 @@ wss.on("connection", socket => {
 				
 				let r = stalledResponses.get(requestid)
 				let {meta, buf} = response
-	
+
+				if(!meta || !buf){
+
+					r.send("en error occured");
+
+					break;
+
+				}
+
 				let type = meta.headers["content-type"]	
 
 				Object.keys(meta.headers).forEach(header => {
