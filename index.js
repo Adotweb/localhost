@@ -146,7 +146,7 @@ wss.on("connection", socket => {
 
 				}catch{
 
-					r.redirect("/notfound")
+					r.status(404).send()
 					break;
 				}
 				
