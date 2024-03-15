@@ -115,60 +115,39 @@ wss.on("connection", socket => {
 				response = data.response
 				
 				let r = stalledResponses.get(requestid)
-				let {meta, buf} = response
 
-				if(!meta || !buf){
 
-					r.send("en error occured");
+				
 
+				try{
+
+
+					Object.keys(response.headers).forEach(header => {
+					
+						r.set(header, response.headers[header])
+
+					})	
+						
+					if(response.redirected){
+
+
+						let redirectUrl = (response.headers["location"].split("/").filter(s => s !== "")[0] == "id") ? response.headers["location"] : "/id" + response.headers["location"]
+						r.redirect(redirectUrl)
+
+					}
+
+					if(response.isBuf){
+
+						res = (Buffer.from(new Uint8Array(response.body)))
+					}
+					else{
+						res = response.body
+					}
+
+				}catch{
+
+					r.redirect("/notfound")
 					break;
-
-				}
-
-				let type = meta.headers["content-type"]	
-
-				Object.keys(meta.headers).forEach(header => {
-					
-					r.set(header, meta.headers[header])
-
-				})	
-
-
-
-				if(meta.redirected){
-
-					let newurl = "/id" + new URL(meta.url).pathname
-
-					r.redirect(newurl)
-
-					break
-				}		
-
-				let res = "something went wrong"
-				if(!type){
-					
-					res = response
-
-					r.send(res);
-					break;
-
-				}
-
-	
-				if(type.includes("json")){
-					res = new TextDecoder().decode(new Uint8Array(buf))
-					res = JSON.parse(res)
-
-
-				}
-				if(type.includes("html") || type.includes("script")){
-					res = new TextDecoder().decode(new Uint8Array(buf))
-	
-				}if(type.includes("image")){
-					
-					r.set("Content-Type", type)	
-					res = Buffer.from(new Uint8Array(buf))
-
 				}
 				
 
