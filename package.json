@@ -14,7 +14,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "arktype": "^2.0.0-dev.21",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "ws": "^8.17.0"
+    "mongodb": "^6.7.0",
+    "ws": "^8.17.0",
+    "zod": "^3.23.8"
   }
 }
